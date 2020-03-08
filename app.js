@@ -1,5 +1,6 @@
 
 const cafeList = document.querySelector('#cafe-list')
+const form = document.querySelector('#add-cafe-form');
 
 // Create element to render a cafe:
 function renderCafe(doc) {
@@ -30,4 +31,20 @@ db.collection('cafes').get().then( (snapshot) => {
         console.log(doc.data());  // doc.data() is a method! use parenthesis!
         renderCafe(doc);
     })
+})
+
+// Saving data:
+form.addEventListener('submit',(e) => {
+    // Clicking the button will reload the page by default.
+    e.preventDefault();
+    // By using attribute name="blah" in the input form, we can access it by using form.blah
+    db.collection('cafes').add({
+        name: form.name.value,
+        city: form.city.value
+    });
+    form.reset();
+
+    // Net Ninja's alternative:
+    // form.name.value = '';
+    // form.city.value = '';
 })
