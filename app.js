@@ -32,16 +32,19 @@ function renderCafe(doc) {
 // We can put it in a variable like: var cafes = db.collection('cafes')
 // Use method .where() to add different queries!
 // db.collection('cafes').where('city', '==', 'manchester').where('name', '==', 'Luigi').get().then( (snapshot) => {
-db.collection('cafes').get().then( (snapshot) => {
-    // Snapshot refers to the snapshot of the data we'll receive when we receive the data
-    console.log(snapshot.docs);
-    // We see an array but not the data from the documents! We need to use a different method
+// db.collection('cafes').orderBy('name').get().then( (snapshot) => {
+//     // Snapshot refers to the snapshot of the data we'll receive when we receive the data
+//     console.log(snapshot.docs);
+//     // We see an array but not the data from the documents! We need to use a different method
 
-    snapshot.docs.forEach(doc => {
-        console.log(doc.data());  // doc.data() is a method! use parenthesis!
-        renderCafe(doc);
-    })
-})
+//     snapshot.docs.forEach(doc => {
+//         console.log(doc.data());  // doc.data() is a method! use parenthesis!
+//         renderCafe(doc);
+//     })
+// })
+
+
+
 
 // Saving data:
 form.addEventListener('submit',(e) => {
@@ -57,4 +60,26 @@ form.addEventListener('submit',(e) => {
     // Net Ninja's alternative:
     // form.name.value = '';
     // form.city.value = '';
+})
+
+
+// Real-time listener:
+db.collection('cafes').orderBy('city').onSnapshot(snapshot => {
+    // Detect the changes in the database:
+    let changes = snapshot.docChanges();
+    console.log(changes)
+    // The object returned has a property name type where you can se 'added' , 'deleted' so you can see the status of that entry
+    // When you add a new entry via the form. You receive a new object of 'type':'added'
+    changes.forEach( change => {
+        // console.log(change.doc.data());
+        if (change.type == 'added') {
+            renderCafe(change.doc)
+        } else if (change.type == 'removed') {
+            // We are using an attribute selector to select the right 'li'
+            let li = cafeList.querySelector('[data-id=' + change.doc.id + ']');
+            
+            // You can't remove the 'li' directly: use the 'ul'
+            cafeList.removeChild(li);
+        }
+    })
 })
